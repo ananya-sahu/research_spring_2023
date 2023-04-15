@@ -37,14 +37,16 @@ def extract_features_byframe(detector, frame_path):
 
 def extract_features_file(detector, directory, frames):
     dfs = []
-    for time,frame in frames:
+    for time, frame in frames:
         file_location = os.path.join(directory, frame)
         df = extract_features_byframe(detector, file_location)
         df['time'] = time
         dfs.append(df)
     
-    df_all = pd.concat(dfs)
-    return df_all
+    # df_all = pd.concat(dfs)
+    # return df_all
+    return dfs
+
 
 def get_similarity(df, features):
     sim = []
@@ -55,10 +57,20 @@ def get_similarity(df, features):
     
     return sum(sim) / len(sim)
 
-
-
-
-        
+def extract(video_change_points, annotations,detector, split):
+    all_features = {}
+    for file_id in annotations:
+        print(file_id)
+        if annotations[file_id]['split'] == split and annotations[file_id]['processed'] == True and (len(video_change_points[file_id]) >0):
+            features = {}
+            directory = annotations[file_id]['processed_dir']
+            time_stamps = video_change_points[file_id]
+            for t in time_stamps:
+                frames = get_frames(annotations, file_id, t)
+                if any(x is None for x in frames) == False:
+                    features[t] = extract_features_file(detector, directory, frames) #list of dataframes with features for -5, t, +5 
+            all_features[file_id] = features
+    return all_features 
 
 def main():
     #load original annotations
@@ -87,13 +99,17 @@ def main():
     with open("./video_changepoints.pkl", 'rb') as handle:
         video_change_points = pickle.load(handle)
     
-    frames = get_frames(annotations, 'M01000AJ9', 94.0)
-    directory = annotations['M01000AJ9']['processed_dir']
+    # frames = get_frames(annotations, 'M01000AJ9', 94.0)
+    # directory = annotations['M01000AJ9']['processed_dir']
     detector = Detector()
-    features = extract_features_file(detector, directory, frames)
-    features.to_csv("extracted_test.csv")
+    # features = extract_features_file(detector, directory, frames)
+    # features.to_csv("extracted_test.csv")
 
+    change_point_features = extract(video_change_points,annotations,detector,'train')
+    with open("./change_point_features.pkl", 'wb') as f:
+        pickle.dump(change_point_features, f)
 
+    
     
     
     
