@@ -142,8 +142,8 @@ def similarity_scores(features_dict, feature, label):
 
 def main():
     #load original annotations
-    with open('/mnt/swordfish-pool2/ccu/as5957-cache.pkl', 'rb') as handle:
-        annotations = pickle.load(handle)
+    # with open('/mnt/swordfish-pool2/ccu/as5957-cache.pkl', 'rb') as handle:
+    #     annotations = pickle.load(handle)
     
     #filter and save video only annotations
     # annotations = filter_only_video(annotations)
@@ -167,6 +167,9 @@ def main():
     # with open("./video_changepoints.pkl", 'rb') as handle:
     #     video_change_points = pickle.load(handle)
     
+    # subset = {k: video_change_points[k] for k in list(video_change_points)[:5]}
+
+    
     # frames = get_frames(annotations, 'M01000AJ9', 94.0)
     # directory = annotations['M01000AJ9']['processed_dir']
     
@@ -174,10 +177,18 @@ def main():
     # features.to_csv("extracted_test.csv")
 
     #get change_point features
-    # detector = Detector()
-    # change_point_features = extract(video_change_points,annotations,detector,'train')
-    # with open("./change_point_features.pkl", 'wb') as f:
+    detector = Detector()
+    # change_point_features = extract(subset,annotations,detector,'train')
+    # with open("./change_point_features_test.pkl", 'wb') as f:
     #     pickle.dump(change_point_features, f)
+    
+    with open("/home/as5957/research_spring_2023/change_point_features.pkl", 'rb') as handle:
+        change_point_features = pickle.load(handle)
+    
+    print(change_point_features['M01000AJ9'].keys())
+    print(change_point_features['M01000AJA'].keys())
+   
+
 
     #get non change points 
     # non_change_points_dict = get_non_change_points(annotations, video_change_points)
@@ -216,25 +227,25 @@ def main():
     # sims_df_ncp.to_csv("./nonchange_point_sims_pose.csv")
 
 
-    change_point_all_sims = pd.read_csv('/home/as5957/research_spring_2023/change_point_sims.csv', index_col=0)
-    change_point_emotion_sims = pd.read_csv('/home/as5957/research_spring_2023/change_point_sims_emotions.csv', index_col=0)
-    change_point_musc_sims = pd.read_csv('/home/as5957/research_spring_2023/change_point_sims_musc.csv', index_col=0)
-    change_point_pose_sims = pd.read_csv('/home/as5957/research_spring_2023/change_point_sims_pose.csv', index_col=0)
+    # change_point_all_sims = pd.read_csv('/home/as5957/research_spring_2023/change_point_sims.csv', index_col=0)
+    # change_point_emotion_sims = pd.read_csv('/home/as5957/research_spring_2023/change_point_sims_emotions.csv', index_col=0)
+    # change_point_musc_sims = pd.read_csv('/home/as5957/research_spring_2023/change_point_sims_musc.csv', index_col=0)
+    # change_point_pose_sims = pd.read_csv('/home/as5957/research_spring_2023/change_point_sims_pose.csv', index_col=0)
 
-    time_stamp_scalars = get_impact_scalars(annotations, list(change_point_all_sims['file_id']))
-    print(time_stamp_scalars.keys())
+    # time_stamp_scalars = get_impact_scalars(annotations, list(change_point_all_sims['file_id']))
+    # print(time_stamp_scalars.keys())
 
-    change_point_all_sims = append_impact_scalars(change_point_all_sims, time_stamp_scalars)
-    change_point_all_sims.to_csv("./change_point_all_sims_scalars.csv",index=False)
+    # change_point_all_sims = append_impact_scalars(change_point_all_sims, time_stamp_scalars)
+    # change_point_all_sims.to_csv("./change_point_all_sims_scalars.csv",index=False)
 
-    change_point_emotion_sims = append_impact_scalars(change_point_emotion_sims, time_stamp_scalars)
-    change_point_emotion_sims.to_csv("./change_point_all_emotions_scalars.csv",index=False)
+    # change_point_emotion_sims = append_impact_scalars(change_point_emotion_sims, time_stamp_scalars)
+    # change_point_emotion_sims.to_csv("./change_point_all_emotions_scalars.csv",index=False)
     
-    change_point_musc_sims = append_impact_scalars(change_point_musc_sims, time_stamp_scalars)
-    change_point_musc_sims.to_csv("./change_point_musc_sims_scalars.csv",index=False)
+    # change_point_musc_sims = append_impact_scalars(change_point_musc_sims, time_stamp_scalars)
+    # change_point_musc_sims.to_csv("./change_point_musc_sims_scalars.csv",index=False)
 
-    change_point_pose_sims = append_impact_scalars(change_point_pose_sims, time_stamp_scalars)
-    change_point_pose_sims.to_csv("./change_point_pose_sims_scalars.csv",index=False)
+    # change_point_pose_sims = append_impact_scalars(change_point_pose_sims, time_stamp_scalars)
+    # change_point_pose_sims.to_csv("./change_point_pose_sims_scalars.csv",index=False)
 
 
 if __name__ == "__main__":
