@@ -142,8 +142,8 @@ def similarity_scores(features_dict, feature, label):
 
 def main():
     #load original annotations
-    # with open('/mnt/swordfish-pool2/ccu/as5957-cache.pkl', 'rb') as handle:
-    #     annotations = pickle.load(handle)
+    with open('/mnt/swordfish-pool2/ccu/as5957-cache.pkl', 'rb') as handle:
+        annotations = pickle.load(handle)
     
     #filter and save video only annotations
     # annotations = filter_only_video(annotations)
@@ -164,8 +164,8 @@ def main():
     #         pickle.dump(change_points, f)
 
    #{'file_id': [timestamps of change points]}
-    # with open("./video_changepoints.pkl", 'rb') as handle:
-    #     video_change_points = pickle.load(handle)
+    with open("./video_changepoints.pkl", 'rb') as handle:
+        video_change_points = pickle.load(handle)
     
     # subset = {k: video_change_points[k] for k in list(video_change_points)[:5]}
 
@@ -178,20 +178,16 @@ def main():
 
     #get change_point features
     detector = Detector()
-    # change_point_features = extract(subset,annotations,detector,'train')
-    # with open("./change_point_features_test.pkl", 'wb') as f:
-    #     pickle.dump(change_point_features, f)
+    change_point_features_val = extract(video_change_points,annotations,detector,'test')
+    with open("./change_point_features_test.pkl", 'wb') as f:
+        pickle.dump(change_point_features_val, f)
     
-    with open("/home/as5957/research_spring_2023/change_point_features.pkl", 'rb') as handle:
-        change_point_features = pickle.load(handle)
     
-    print(change_point_features['M01000AJ9'].keys())
-    print(change_point_features['M01000AJA'].keys())
    
 
 
-    #get non change points 
-    # non_change_points_dict = get_non_change_points(annotations, video_change_points)
+    # get non change points 
+    non_change_points_dict = get_non_change_points(annotations, video_change_points)
     # print(non_change_points_dict)
     # with open("./non_change_points.pkl", 'wb') as f:
     #     pickle.dump(non_change_points_dict, f)
@@ -201,9 +197,9 @@ def main():
     #     non_change_points_dict = pickle.load(handle)
     
     # detector = Detector()
-    # non_change_point_features = extract(non_change_points_dict,annotations,detector,'train')
-    # with open("./non_change_point_features.pkl", 'wb') as f:
-    #     pickle.dump(non_change_point_features, f)
+    non_change_point_features_val = extract(non_change_points_dict,annotations,detector,'test')
+    with open("./non_change_point_features_test.pkl", 'wb') as f:
+        pickle.dump(non_change_point_features_val, f)
     
 
     #load frames and get similarities

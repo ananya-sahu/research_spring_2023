@@ -1,6 +1,6 @@
 import pickle 
 
-with open("/home/as5957/research_spring_2023/non_change_point_features.pkl", 'rb') as f:
+with open("/home/as5957/research_spring_2023/change_point_features_test.pkl", 'rb') as f:
     all_features = pickle.load(f)
 
 print(len(all_features))
@@ -18,5 +18,5 @@ for id in all_features:
 
 print(len(filtered))
 
-with open("./nonchange_points_two.pkl", 'wb') as f:
+with open("./change_points_test_two.pkl", 'wb') as f:
     pickle.dump(filtered, f)
