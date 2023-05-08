@@ -20,7 +20,7 @@ def append_impact_scalars(df,time_scalars):
     return df 
 
 def get_impact_scalars(annotations, file_ids):
-    #return new df with timescalars appended 
+    #return new dictionary with timescalars appended 
     c_i_s = {}
     for file_id in file_ids:
          change_points = annotations[file_id]['changepoints']
@@ -164,8 +164,8 @@ def main():
     #         pickle.dump(change_points, f)
 
    #{'file_id': [timestamps of change points]}
-    with open("./video_changepoints.pkl", 'rb') as handle:
-        video_change_points = pickle.load(handle)
+    # with open("./video_changepoints.pkl", 'rb') as handle:
+    #     video_change_points = pickle.load(handle)
     
     # subset = {k: video_change_points[k] for k in list(video_change_points)[:5]}
 
@@ -177,17 +177,17 @@ def main():
     # features.to_csv("extracted_test.csv")
 
     #get change_point features
-    detector = Detector()
-    change_point_features_val = extract(video_change_points,annotations,detector,'test')
-    with open("./change_point_features_test.pkl", 'wb') as f:
-        pickle.dump(change_point_features_val, f)
+    # detector = Detector()
+    # change_point_features_val = extract(video_change_points,annotations,detector,'test')
+    # with open("./change_point_features_test.pkl", 'wb') as f:
+    #     pickle.dump(change_point_features_val, f)
     
     
    
 
 
     # get non change points 
-    non_change_points_dict = get_non_change_points(annotations, video_change_points)
+    # non_change_points_dict = get_non_change_points(annotations, video_change_points)
     # print(non_change_points_dict)
     # with open("./non_change_points.pkl", 'wb') as f:
     #     pickle.dump(non_change_points_dict, f)
@@ -197,9 +197,9 @@ def main():
     #     non_change_points_dict = pickle.load(handle)
     
     # detector = Detector()
-    non_change_point_features_val = extract(non_change_points_dict,annotations,detector,'test')
-    with open("./non_change_point_features_test.pkl", 'wb') as f:
-        pickle.dump(non_change_point_features_val, f)
+    # non_change_point_features_val = extract(non_change_points_dict,annotations,detector,'test')
+    # with open("./non_change_point_features_test.pkl", 'wb') as f:
+    #     pickle.dump(non_change_point_features_val, f)
     
 
     #load frames and get similarities
@@ -243,6 +243,27 @@ def main():
     # change_point_pose_sims = append_impact_scalars(change_point_pose_sims, time_stamp_scalars)
     # change_point_pose_sims.to_csv("./change_point_pose_sims_scalars.csv",index=False)
 
+
+    dftrain = pd.read_csv('/home/as5957/research_spring_2023/research_2023_experiments /features1_train.csv')
+    dftest = pd.read_csv('/home/as5957/research_spring_2023/research_2023_experiments /features1_test.csv')
+    dfval = pd.read_csv('/home/as5957/research_spring_2023/research_2023_experiments /features1_val.csv')
+
+    dftrain = dftrain[dftrain['label'] == 'cp']
+    dftest = dftest[dftest['label'] == 'cp']
+    dfval = dfval[dfval['label'] == 'cp']
+    
+    time_stamp_scalars_train = get_impact_scalars(annotations, list(dftrain['file_id']))
+    time_stamp_scalars_test = get_impact_scalars(annotations, list(dftest['file_id']))
+    time_stamp_scalars_val = get_impact_scalars(annotations, list(dfval['file_id']))
+
+    with open("/home/as5957/research_spring_2023/research_2023_experiments /train.pkl", 'wb') as f:
+        pickle.dump(time_stamp_scalars_train, f)
+    
+    with open("/home/as5957/research_spring_2023/research_2023_experiments /val.pkl", 'wb') as f:
+        pickle.dump(time_stamp_scalars_val, f)
+    
+    with open("/home/as5957/research_spring_2023/research_2023_experiments /test.pkl", 'wb') as f:
+        pickle.dump(time_stamp_scalars_test, f)
 
 if __name__ == "__main__":
     main()
