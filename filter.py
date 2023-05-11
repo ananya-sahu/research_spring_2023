@@ -1,6 +1,6 @@
 import pickle 
 
-with open("/home/as5957/research_spring_2023/change_point_features_test.pkl", 'rb') as f:
+with open("/home/as5957/research_spring_2023/cp_features_val.pkl", 'rb') as f:
     all_features = pickle.load(f)
 
 print(len(all_features))
@@ -11,6 +11,7 @@ for id in all_features:
     filtered_time = {}
     for time in change_points:
         dfs = change_points[time]
+        num = len(dfs[0])
         if all(len(d) == 2 for d in dfs):
             filtered_time[time] = dfs
     if len(filtered_time) >0:
@@ -18,5 +19,7 @@ for id in all_features:
 
 print(len(filtered))
 
-with open("./change_points_test_two.pkl", 'wb') as f:
+with open("./cp_features_val_dyadic.pkl", 'wb') as f:
     pickle.dump(filtered, f)
+
+

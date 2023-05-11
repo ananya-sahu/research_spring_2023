@@ -140,6 +140,35 @@ def similarity_scores(features_dict, feature, label):
                 df.loc[len(df)] = row
     return sims,df
 
+def extract_val_set(annotations, detector,split):
+    # key is file_id val is a dictioanry with: 'changepoints': changepoints list and 'frames': dictionary of processed frames (key is timestamp, and val is df)
+    filtered = {} #dyadic only 
+    for file_id in annotations:
+        if split == annotations[file_id]['split'] and annotations[file_id]['processed'] == True and annotations[file_id]['data_type'] == 'video':
+            filtered[file_id] = {}
+            start = annotations[file_id]['start']
+            end = annotations[file_id]['end']
+            utterances = annotations[file_id]['utterances'] #list of dictionaries with vars for an utterance 
+            filtered_frames = {}
+            filtered[file_id]['changepoints'] = annotations[file_id]['changepoints']
+            filtered[file_id]['frames'] = [] #list of dictionaries with key being the start and end time stamp and value being a list of two dfs containing those features 
+            directory = annotations[file_id]['processed_dir']
+            for utterance in utterances:
+                videos = utterance['video_frames'] #randomly choose a frame that spans an utterance 
+                if len(videos) > 0:
+                    videos = [videos[0],videos[-1]]
+                    span = []
+                    for (time,frame) in videos:
+                        if start <= time and end >= time:
+                            frame_path = os.path.join(directory, frame)
+                            df = detector.detect_image(frame_path)
+                            span.append(df)
+                    if len(span) > 0 and all(len(d) == 2 for d in span):
+                        filtered_frames[(videos[0][0],videos[1][0])] = span
+                        filtered[file_id]['frames'].append(filtered_frames)
+                        
+    return filtered_frames 
+
 def main():
     #load original annotations
     with open('/mnt/swordfish-pool2/ccu/as5957-cache.pkl', 'rb') as handle:
@@ -177,11 +206,13 @@ def main():
     # features.to_csv("extracted_test.csv")
 
     #get change_point features
-    # detector = Detector()
+    detector = Detector()
     # change_point_features_val = extract(video_change_points,annotations,detector,'test')
     # with open("./change_point_features_test.pkl", 'wb') as f:
     #     pickle.dump(change_point_features_val, f)
-    
+    dyadic_val_set = extract_val_set(annotations, detector,'val')
+    with open("./val_set.pkl", 'wb') as f:
+        pickle.dump(dyadic_val_set, f)
     
    
 
@@ -244,26 +275,27 @@ def main():
     # change_point_pose_sims.to_csv("./change_point_pose_sims_scalars.csv",index=False)
 
 
-    dftrain = pd.read_csv('/home/as5957/research_spring_2023/research_2023_experiments /features1_train.csv')
-    dftest = pd.read_csv('/home/as5957/research_spring_2023/research_2023_experiments /features1_test.csv')
-    dfval = pd.read_csv('/home/as5957/research_spring_2023/research_2023_experiments /features1_val.csv')
+    # with open('/home/as5957/research_spring_2023/non_dyadic_data/change_points_train_non_dyadic.pkl', 'rb') as handle:
+    #     train = pickle.load(handle)
+    
+    # with open('/home/as5957/research_spring_2023/non_dyadic_data/change_points_val_non_dyadic.pkl', 'rb') as handle:
+    #     val = pickle.load(handle)
+    
+    # with open('/home/as5957/research_spring_2023/non_dyadic_data/change_points_test_non_dyadic.pkl', 'rb') as handle:
+    #     test = pickle.load(handle)
+    
+    # time_stamp_scalars_train = get_impact_scalars(annotations, list(train.keys()))
+    # time_stamp_scalars_val = get_impact_scalars(annotations, list(val.keys()))
+    # time_stamp_scalars_test = get_impact_scalars(annotations, list(test.keys()))
 
-    dftrain = dftrain[dftrain['label'] == 'cp']
-    dftest = dftest[dftest['label'] == 'cp']
-    dfval = dfval[dfval['label'] == 'cp']
+    # with open("/home/as5957/research_spring_2023/train_nd.pkl", 'wb') as f:
+    #     pickle.dump(time_stamp_scalars_train, f)
     
-    time_stamp_scalars_train = get_impact_scalars(annotations, list(dftrain['file_id']))
-    time_stamp_scalars_test = get_impact_scalars(annotations, list(dftest['file_id']))
-    time_stamp_scalars_val = get_impact_scalars(annotations, list(dfval['file_id']))
-
-    with open("/home/as5957/research_spring_2023/research_2023_experiments /train.pkl", 'wb') as f:
-        pickle.dump(time_stamp_scalars_train, f)
+    # with open("/home/as5957/research_spring_2023/val_nd.pkl", 'wb') as f:
+    #     pickle.dump(time_stamp_scalars_val, f)
     
-    with open("/home/as5957/research_spring_2023/research_2023_experiments /val.pkl", 'wb') as f:
-        pickle.dump(time_stamp_scalars_val, f)
-    
-    with open("/home/as5957/research_spring_2023/research_2023_experiments /test.pkl", 'wb') as f:
-        pickle.dump(time_stamp_scalars_test, f)
+    # with open("/home/as5957/research_spring_2023/test_nd.pkl", 'wb') as f:
+    #     pickle.dump(time_stamp_scalars_test, f)
 
 if __name__ == "__main__":
     main()
