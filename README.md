@@ -29,5 +29,5 @@ Extra:
 filter.py: run filter.py after generating the changepoint features to ensure only dyadic videos are being processed for the final train and val sets
 analysis.ipynb: contains code for visualizing similarity changes in changepoint vs nonchangepoint annotations as well as prelimnary models that use just similarity scores to predict changepoints in the subset of the train data 
 gen_plots.ipynb: contains code to visualize similarity changes in changepoint predictions by impact scalar 
-
+facial_feature_extraction_pipeline (1).ipynb: contains code for an segmenting a video and processing the entire video rather than frames with Py-feat
 
