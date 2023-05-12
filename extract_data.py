@@ -63,8 +63,6 @@ def extract_features_file(detector, directory, frames):
         df['time'] = time
         dfs.append(df)
     
-    # df_all = pd.concat(dfs)
-    # return df_all
     return dfs
 
 def extract(video_change_points, annotations,detector, split):
@@ -86,7 +84,6 @@ def non_change_points(start, end, change_points):
     for change_point in change_points:
         while t <= change_point-5 and t>= change_point+5 :
             t = random.uniform(start+5, end-5)
-            # random.randint(start+5, end-5)
     return [t]
 
 def get_non_change_points(annotations, video_change_points):
@@ -123,7 +120,6 @@ def similarity_scores(features_dict, feature, label):
                     if feature == 'all':
                         features = list(set(f.columns) - set(['FaceRectX', 'FaceRectY', 'FaceRectWidth', 'FaceRectHeight','FaceScore', 'label', 'input', 'frame']))
                     if feature == 'emotion':
-                        # features = ['anger', 'disgust', 'fear', 'happiness', 'sadness', 'surprise','neutral']
                         features = f.emotions.columns
                     if feature == 'musc':
                         features = f.aus.columns
@@ -140,6 +136,8 @@ def similarity_scores(features_dict, feature, label):
                 df.loc[len(df)] = row
     return sims,df
 
+#this function was not used in experiments since this extracts the entire val set and does not first filter for dyadic videos
+#running this function for the entire val set can take up to 3 days due slow processing 
 def extract_val_set(annotations, detector,split):
     # key is file_id val is a dictioanry with: 'changepoints': changepoints list and 'frames': dictionary of processed frames (key is timestamp, and val is df)
     filtered = {} #dyadic only 
@@ -168,135 +166,4 @@ def extract_val_set(annotations, detector,split):
                         filtered[file_id]['frames'].append(filtered_frames)
                         
     return filtered_frames 
-
-def main():
-    #load original annotations
-    with open('/mnt/swordfish-pool2/ccu/as5957-cache.pkl', 'rb') as handle:
-        annotations = pickle.load(handle)
-    
-    #filter and save video only annotations
-    # annotations = filter_only_video(annotations)
-    # with open("./video_annotations.pkl", 'wb') as f:
-    #         pickle.dump(annotations, f)
-    
-    # with open('/home/as5957/research_spring_2023/video_annotations.pkl', 'rb') as handle:
-    #     annotations = pickle.load(handle)
-    
-    #get changepoints a video file and add as a list 
-    # change_points = defaultdict(list)
-    # for file_id in annotations:
-    #     changes = get_change_points(annotations,file_id)
-    #     for c in changes:
-    #         change_points[file_id].append(c['timestamp'])
-
-    # with open("./video_changepoints.pkl", 'wb') as f:
-    #         pickle.dump(change_points, f)
-
-   #{'file_id': [timestamps of change points]}
-    # with open("./video_changepoints.pkl", 'rb') as handle:
-    #     video_change_points = pickle.load(handle)
-    
-    # subset = {k: video_change_points[k] for k in list(video_change_points)[:5]}
-
-    
-    # frames = get_frames(annotations, 'M01000AJ9', 94.0)
-    # directory = annotations['M01000AJ9']['processed_dir']
-    
-    # features = extract_features_file(detector, directory, frames)
-    # features.to_csv("extracted_test.csv")
-
-    #get change_point features
-    detector = Detector()
-    # change_point_features_val = extract(video_change_points,annotations,detector,'test')
-    # with open("./change_point_features_test.pkl", 'wb') as f:
-    #     pickle.dump(change_point_features_val, f)
-    dyadic_val_set = extract_val_set(annotations, detector,'val')
-    with open("./val_set.pkl", 'wb') as f:
-        pickle.dump(dyadic_val_set, f)
-    
-   
-
-
-    # get non change points 
-    # non_change_points_dict = get_non_change_points(annotations, video_change_points)
-    # print(non_change_points_dict)
-    # with open("./non_change_points.pkl", 'wb') as f:
-    #     pickle.dump(non_change_points_dict, f)
-    
-    #get non change_point features
-    # with open("./non_change_points.pkl", 'rb') as handle:
-    #     non_change_points_dict = pickle.load(handle)
-    
-    # detector = Detector()
-    # non_change_point_features_val = extract(non_change_points_dict,annotations,detector,'test')
-    # with open("./non_change_point_features_test.pkl", 'wb') as f:
-    #     pickle.dump(non_change_point_features_val, f)
-    
-
-    #load frames and get similarities
-    # with open("./non_change_point_features.pkl", 'rb') as handle:
-    #     non_change_points_frames = pickle.load(handle)
-
-    # with open("./change_point_features.pkl", 'rb') as handle:
-    #     change_points_frames = pickle.load(handle)
-    
-    # sims_dict_cp, sims_df_cp = similarity_scores(change_points_frames,'head_pose', 'cp')
-    # sims_dict_ncp, sims_df_ncp = similarity_scores(non_change_points_frames,'head_pose', 'ncp')
-    
-    # with open("./non_change_point_sims_pose.pkl", 'wb') as f:
-    #     pickle.dump(sims_dict_ncp, f)
-
-    # with open("./change_point_sims_pose.pkl", 'wb') as f:
-    #     pickle.dump(sims_dict_cp, f)
-    
-
-    # sims_df_cp.to_csv("./change_point_sims_pose.csv")
-    # sims_df_ncp.to_csv("./nonchange_point_sims_pose.csv")
-
-
-    # change_point_all_sims = pd.read_csv('/home/as5957/research_spring_2023/change_point_sims.csv', index_col=0)
-    # change_point_emotion_sims = pd.read_csv('/home/as5957/research_spring_2023/change_point_sims_emotions.csv', index_col=0)
-    # change_point_musc_sims = pd.read_csv('/home/as5957/research_spring_2023/change_point_sims_musc.csv', index_col=0)
-    # change_point_pose_sims = pd.read_csv('/home/as5957/research_spring_2023/change_point_sims_pose.csv', index_col=0)
-
-    # time_stamp_scalars = get_impact_scalars(annotations, list(change_point_all_sims['file_id']))
-    # print(time_stamp_scalars.keys())
-
-    # change_point_all_sims = append_impact_scalars(change_point_all_sims, time_stamp_scalars)
-    # change_point_all_sims.to_csv("./change_point_all_sims_scalars.csv",index=False)
-
-    # change_point_emotion_sims = append_impact_scalars(change_point_emotion_sims, time_stamp_scalars)
-    # change_point_emotion_sims.to_csv("./change_point_all_emotions_scalars.csv",index=False)
-    
-    # change_point_musc_sims = append_impact_scalars(change_point_musc_sims, time_stamp_scalars)
-    # change_point_musc_sims.to_csv("./change_point_musc_sims_scalars.csv",index=False)
-
-    # change_point_pose_sims = append_impact_scalars(change_point_pose_sims, time_stamp_scalars)
-    # change_point_pose_sims.to_csv("./change_point_pose_sims_scalars.csv",index=False)
-
-
-    # with open('/home/as5957/research_spring_2023/non_dyadic_data/change_points_train_non_dyadic.pkl', 'rb') as handle:
-    #     train = pickle.load(handle)
-    
-    # with open('/home/as5957/research_spring_2023/non_dyadic_data/change_points_val_non_dyadic.pkl', 'rb') as handle:
-    #     val = pickle.load(handle)
-    
-    # with open('/home/as5957/research_spring_2023/non_dyadic_data/change_points_test_non_dyadic.pkl', 'rb') as handle:
-    #     test = pickle.load(handle)
-    
-    # time_stamp_scalars_train = get_impact_scalars(annotations, list(train.keys()))
-    # time_stamp_scalars_val = get_impact_scalars(annotations, list(val.keys()))
-    # time_stamp_scalars_test = get_impact_scalars(annotations, list(test.keys()))
-
-    # with open("/home/as5957/research_spring_2023/train_nd.pkl", 'wb') as f:
-    #     pickle.dump(time_stamp_scalars_train, f)
-    
-    # with open("/home/as5957/research_spring_2023/val_nd.pkl", 'wb') as f:
-    #     pickle.dump(time_stamp_scalars_val, f)
-    
-    # with open("/home/as5957/research_spring_2023/test_nd.pkl", 'wb') as f:
-    #     pickle.dump(time_stamp_scalars_test, f)
-
-if __name__ == "__main__":
-    main()
 
