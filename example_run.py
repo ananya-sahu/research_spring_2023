@@ -96,7 +96,10 @@ change_point_features_val = extract(change_points,annotations,detector,'val')
 with open("./cp_features_val.pkl", 'wb') as f:
     pickle.dump(change_point_features_val, f)
 #run this through filter.py for dyadic videos only bc we only want ncps for dyadic videos as well
-
+time_stamp_scalars_val = get_impact_scalars(annotations, list(change_point_features_val['file_id']))
+with open("./is_val.pkl", 'wb') as f:
+    pickle.dump(change_point_features_val, f)
+    
 #change the file to file_name for dyadic videos (this will take a while)
 with open('/home/as5957/research_spring_2023/cp_features_val_dyadic.pkl', 'rb') as handle:
     cp = pickle.load(handle)
